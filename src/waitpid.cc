@@ -10,14 +10,18 @@ using namespace node;
 
 static Handle<Value> Waitpid(const Arguments& args) {
   HandleScope scope;
-  int r, child, status;
+  int child, status, options;
 
   if (args[0]->IsInt32()) {
     child = args[0]->Int32Value();
 
-    do {
-      r = waitpid(child, &status, WNOHANG);
-    } while (r != -1);
+    if (args[1]->IsBoolean() && args[1]->BooleanValue()) {
+      options = WNOHANG;
+    } else {
+      options = 0;
+    }
+
+    waitpid(child, &status, options);
 
     Local<Object> result = Object::New();
 
